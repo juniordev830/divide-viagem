@@ -1,0 +1,20 @@
+{
+  "name": "divide-viagem",
+  "title": "Divide Viagem",
+  "description": "Divisão de despesas de viagem com cálculo do saldo por participante.",
+  "primary_language": "Kotlin",
+  "proposed_technologies": "Kotlin/JVM, Gradle Kotlin DSL e aritmética em centavos",
+  "status": "initial-core",
+  "github_created": false,
+  "application_implemented": true,
+  "planned_features": [
+    "Cadastrar participantes e despesas",
+    "Dividir valores com arredondamento correto",
+    "Calcular saldos e exportar resumo"
+  ],
+  "implemented_technologies": [
+    "Kotlin",
+    "Biblioteca padrão"
+  ],
+  "validation": "Consulte GitHub Actions"
+}
