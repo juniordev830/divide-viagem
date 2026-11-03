@@ -1,41 +1,32 @@
 # Divide Viagem
 
-Divisão de despesas de viagem com cálculo do saldo por participante.
+CLI em **Kotlin 2.1.0 / JDK 17+** para dividir despesas de viagem igualmente entre participantes e sugerir transferências entre eles.
 
-## Implementado na primeira versão
+## Funcionalidades
 
-**Kotlin — núcleo executável de domínio.** Divide despesas em centavos inteiros e propõe transferências que zeram todos os saldos. O resto da divisão é atribuído aos primeiros participantes, na ordem informada.
+- `ledger(people, expenses)`: calcula o valor pago por pessoa, a cota igualitária e o saldo final. Saldo positivo significa **receber**; negativo significa **pagar**.
+- `settle(people, expenses)`: gera uma lista de transferências sugeridas que zera os saldos, sem movimentar dinheiro.
+- Todas as operações monetárias usam **centavos inteiros** (`Long`); `Math.addExact` / `Math.subtractExact` impedem estouro silencioso.
+- O resto de uma divisão que não dá centavos exatos é atribuído às primeiras pessoas na ordem informada. Nomes duplicados, pagadores inexistentes e valores negativos são rejeitados.
+- `--resumo` imprime primeiro a memória de cálculo de cada pessoa (`pago`, `cota`, `saldo`) e em seguida as transferências. Sem o parâmetro, mantém a saída antiga.
 
-## Como executar
-
-Instale JDK 17+ e o compilador Kotlin 2.1.0 (ou compatível). Os comandos abaixo partem da raiz do repositório.
+## Uso
 
 ```sh
 kotlinc Main.kt -include-runtime -d app.jar
 java -jar app.jar Ana,Bia,Caio examples/despesas.tsv
-```
-
-## Testes
-
-```sh
-kotlinc Main.kt -include-runtime -d app.jar
+java -jar app.jar Ana,Bia,Caio examples/despesas.tsv --resumo
 java -jar app.jar --self-test
 ```
 
-Os testes cobrem invariantes e entradas inválidas. A preparação local não dispõe deste runtime; o workflow em `.github/workflows/ci.yml` executa a validação no GitHub Actions. O resultado de cada execução está na aba Actions, associado ao commit.
+O arquivo TSV deve começar por `pagador<TAB>centavos`. Os exemplos são fictícios. Para despesas totais de 100 centavos divididas por Ana, Bia e Caio, cada cota é de 34, 33 e 33 centavos, respectivamente.
 
-## Organização e limites
+## Testes
 
-Código e exemplos: `Main.kt e examples/despesas.tsv`. Os dados de exemplo são fictícios. As funções de domínio são separadas da leitura de argumentos no mesmo arquivo para manter a primeira versão pequena e revisável.
+O GitHub Actions compila Kotlin e executa testes de arredondamento de centavos, balanço, transferência, lista vazia e overflow.
 
-Divisão igual entre todos, sem moedas múltiplas ou pesos. As transferências são sugestões de cálculo e não movimentam dinheiro. Gradle e interface estão no roteiro.
+## Limitações
 
-A proposta completa de evolução está em `ARQUITETURA.md`. As tecnologias propostas nessa arquitetura não devem ser interpretadas como dependências já implementadas.
+A divisão é sempre igual entre todos, sem pesos ou despesas pessoais, múltiplas moedas ou taxas. O programa não envia dinheiro, salva transferências ou oferece interface. Participantes são identificados pelos nomes exatos informados.
 
-## Próximas entregas
-
-- [ ] Cadastrar participantes e despesas — ampliar o núcleo atual até o fluxo completo.
-- [ ] Dividir valores com arredondamento correto — ampliar o núcleo atual até o fluxo completo.
-- [ ] Calcular saldos e exportar resumo — ampliar o núcleo atual até o fluxo completo.
-
-Licença: ainda não definida.
+Licença ainda não definida.
