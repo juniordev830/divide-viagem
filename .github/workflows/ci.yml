@@ -17,3 +17,7 @@ jobs:
           /tmp/kotlin-tools/kotlinc/bin/kotlinc Main.kt -include-runtime -d app.jar
       - name: Testar regras de domínio
         run: java -jar app.jar --self-test
+      - name: Verificar resumo de saldos no terminal
+        run: |
+          java -jar app.jar Ana,Bia,Caio examples/despesas.tsv --resumo | grep -F 'pago='
+          java -jar app.jar Ana,Bia,Caio examples/despesas.tsv | grep -F 'centavos'
