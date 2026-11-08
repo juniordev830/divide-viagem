@@ -39,3 +39,38 @@ A proposta completa de evolução está em `ARQUITETURA.md`. As tecnologias prop
 - [ ] Calcular saldos e exportar resumo — ampliar o núcleo atual até o fluxo completo.
 
 Licença: ainda não definida.
+
+## Livro de despesas ponderadas (nova implementação)
+
+O fluxo original de divisão igual foi preservado. A nova classe `TravelLedger`
+adiciona participantes com pesos, despesas com beneficiários selecionados,
+pesos específicos por despesa, categorias, edição, remoção e simulações.
+
+```sh
+kotlinc Main.kt TravelLedger.kt TravelLedgerTests.kt -include-runtime -d app.jar
+java -jar app.jar --self-test
+java -jar app.jar --ledger-demo
+java -jar app.jar --ledger-demo-tsv > viagem.tsv
+java -jar app.jar --ledger-report viagem.tsv
+```
+
+Os valores são centavos inteiros (`Long`). A função `parseCents` usa `BigDecimal`
+para interpretar valores como `12.34` sem perda de precisão. A divisão
+ponderada utiliza `BigInteger` para evitar overflow intermediário e distribui
+restos pelo método dos maiores resíduos, com desempate pela ordem dos
+beneficiários. O saldo total é sempre zero e as transferências são apenas
+**sugestões**; nenhum pagamento é realizado.
+
+O formato TSV `ledger-v1` codifica campos de texto em Base64 URL-safe para
+preservar nomes com acentos, tabulações e quebras de linha. É um formato
+local de intercâmbio, não criptografia nem banco de dados. Arquivos externos
+devem ser tratados como não confiáveis; registros e pesos inválidos falham
+com erro em vez de alterar o livro de despesas.
+
+A suíte de cenários executada por `--self-test` cobre arredondamento, pesos,
+beneficiários, erros de entrada, reconciliação, operações reversíveis,
+preview, exportação/importação TSV, Unicode, dinheiro e overflow.
+
+**Limites:** até 100 participantes e 10 mil despesas por instância; não
+há persistência automática, interface gráfica, autenticação ou integração
+bancária. A edição é em memória e a exportação é feita explicitamente.
