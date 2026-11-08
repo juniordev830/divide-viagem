@@ -33,7 +33,7 @@ fun main(args: Array<String>) {
             check(settle(listOf("Ana"), listOf(Expense("Ana", 99))).isEmpty())
             check(runCatching { settle(listOf("Ana"), listOf(Expense("Bia", 1))) }.isFailure)
             check(runCatching { settle(listOf("Ana"), listOf(Expense("Ana", Long.MAX_VALUE),Expense("Ana",1))) }.isFailure)
-            println("4 cenários OK"); return
+            println("4 cenários originais + " + runLedgerTests() + " cenários de ledger OK"); return
         }
         require(args.size == 2) { "Uso: java -jar app.jar Ana,Bia,Caio despesas.tsv" }
         val rows = File(args[1]).readLines().filter { it.isNotBlank() }
