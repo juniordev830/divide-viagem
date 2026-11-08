@@ -33,9 +33,30 @@ fun main(args: Array<String>) {
             check(settle(listOf("Ana"), listOf(Expense("Ana", 99))).isEmpty())
             check(runCatching { settle(listOf("Ana"), listOf(Expense("Bia", 1))) }.isFailure)
             check(runCatching { settle(listOf("Ana"), listOf(Expense("Ana", Long.MAX_VALUE),Expense("Ana",1))) }.isFailure)
-            println("4 cenários OK"); return
+            println("4 cenários originais + " + runLedgerTests() + " cenários de ledger OK"); return
         }
-        require(args.size == 2) { "Uso: java -jar app.jar Ana,Bia,Caio despesas.tsv" }
+        if (args.contentEquals(arrayOf("--ledger-demo")) ||
+            args.contentEquals(arrayOf("--ledger-demo-tsv"))) {
+            val ledger = TravelLedger(listOf(
+                Participant("Ana"), Participant("Bia"), Participant("Caio")))
+            ledger.addExpense(LedgerExpense(
+                "hotel", "Ana", parseCents("150.00"),
+                listOf("Ana", "Bia", "Caio"), category = "hospedagem"))
+            ledger.addExpense(LedgerExpense(
+                "cafe", "Bia", parseCents("45.50"),
+                listOf("Ana", "Bia"), category = "alimentação"))
+            if (args[0] == "--ledger-demo-tsv") print(ledger.toTsv())
+            else print(renderLedger(ledger.snapshot()))
+            return
+        }
+        if (args.size == 2 && args[0] == "--ledger-report") {
+            val ledger = TravelLedger.fromTsv(File(args[1]).readText(Charsets.UTF_8))
+            print(renderLedger(ledger.snapshot()))
+            return
+        }
+        require(args.size == 2) {
+            "Uso: java -jar app.jar Ana,Bia,Caio despesas.tsv | --ledger-demo | --ledger-demo-tsv | --ledger-report arquivo.tsv"
+        }
         val rows = File(args[1]).readLines().filter { it.isNotBlank() }
         require(rows.firstOrNull() == "pagador\tcentavos") { "Cabeçalho TSV inválido" }
         val expenses = rows.drop(1).map { val c=it.split('\t'); require(c.size==2); Expense(c[0],c[1].toLong()) }
