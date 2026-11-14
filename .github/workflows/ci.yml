@@ -17,3 +17,21 @@ jobs:
           /tmp/kotlin-tools/kotlinc/bin/kotlinc Main.kt -include-runtime -d app.jar
       - name: Testar regras de domínio
         run: java -jar app.jar --self-test
+
+      - name: Testar CLI e compatibilidade
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import subprocess, tempfile
+          with tempfile.TemporaryDirectory() as tmp:
+              path = Path(tmp) / "despesas.tsv"
+              path.write_text("pagador\tcentavos\nAna\t100\n", encoding="utf-8")
+              result = subprocess.run(["java","-jar","app.jar","--resumo","Ana,Bia,Caio",str(path)],capture_output=True,text=True)
+              assert result.returncode == 0, result.stderr
+              assert result.stdout.splitlines() == ["participante\tpago_centavos\tcota_centavos\tsaldo_centavos","Ana\t100\t34\t66","Bia\t0\t33\t-33","Caio\t0\t33\t-33"]
+              legacy = subprocess.run(["java","-jar","app.jar","Ana,Bia,Caio",str(path)],capture_output=True,text=True)
+              assert legacy.returncode == 0 and len(legacy.stdout.splitlines()) == 2
+              bad = subprocess.run(["java","-jar","app.jar","--resumo","Ana,Ana",str(path)],capture_output=True,text=True)
+              assert bad.returncode == 2 and not bad.stdout and "Erro:" in bad.stderr
+          print("3 cenários CLI OK")
+          PY
