@@ -43,3 +43,14 @@ Licença: ainda não definida.
 ## Roteiro de qualidade
 
 Consulte o [guia de validação e manutenção](docs/GUIA_DE_VALIDACAO.md) para reproduzir testes, entender as limitações e revisar mudanças com segurança.
+
+
+## Resumo por participante
+
+```sh
+java -jar app.jar --resumo Ana,Bia,Caio examples/despesas.tsv
+```
+
+A saída TSV informa valor pago, cota e saldo em centavos, preservando a ordem dos participantes. Saldo positivo significa valor a receber; negativo, valor a pagar. O total dos saldos é zero. Para uma despesa de 100 centavos paga por Ana, as cotas de Ana, Bia e Caio são 34, 33 e 33 centavos. O comando anterior continua exibindo as transferências sugeridas.
+
+A função `summarize(people, expenses)` pode ser usada diretamente por outra interface. Não grava dados nem realiza transferências. O modo TSV rejeita nomes com tabulações ou quebras de linha.
