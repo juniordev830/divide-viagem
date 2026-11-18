@@ -54,3 +54,15 @@ java -jar app.jar --resumo Ana,Bia,Caio examples/despesas.tsv
 A saída TSV informa valor pago, cota e saldo em centavos, preservando a ordem dos participantes. Saldo positivo significa valor a receber; negativo, valor a pagar. O total dos saldos é zero. Para uma despesa de 100 centavos paga por Ana, as cotas de Ana, Bia e Caio são 34, 33 e 33 centavos. O comando anterior continua exibindo as transferências sugeridas.
 
 A função `summarize(people, expenses)` pode ser usada diretamente por outra interface. Não grava dados nem realiza transferências. O modo TSV rejeita nomes com tabulações ou quebras de linha.
+
+### Extrato em reais
+
+Encaminhe o resumo ao Tcl 8.6 para ver quanto cada pessoa pagou, sua cota e
+quanto recebe ou paga no acerto. Os cálculos usam centavos inteiros.
+
+```sh
+java -jar app.jar --resumo Ana,Bia,Caio examples/despesas.tsv | tclsh extrato.tcl
+```
+
+Com o exemplo acima, o total da viagem é R$ 130,01. O extrato também aceita um
+resumo salvo em UTF-8 pela entrada padrão.
