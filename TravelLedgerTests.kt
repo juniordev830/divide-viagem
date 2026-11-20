@@ -242,9 +242,13 @@ fun runLedgerTests(): Int {
     }
     return passed
 
-    scenario("nome e categoria não aceitam controles") {
-        fails { TravelLedger(listOf(Participant("Ana\n"))) }
-        fails { trio().addExpense(expense().copy(category = "alimentação\t")) }
+    scenario("relatório escapa controles sem alterar os dados") {
+        val ledger = TravelLedger(listOf(Participant("Ana\tBia")))
+        ledger.addExpense(expense().copy(category = "refeições\nfora"))
+        val report = renderLedger(ledger.snapshot())
+        check("Ana\\u0009Bia" in report)
+        check("refeições\\u000Afora" in report)
+        check("Ana\tBia" !in report)
     }
     scenario("TSV limita entrada e saída") {
         fails { TravelLedger.fromTsv("x".repeat(MAX_LEDGER_BYTES + 1)) }
