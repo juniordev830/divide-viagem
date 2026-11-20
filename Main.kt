@@ -45,12 +45,26 @@ fun main(args: Array<String>) {
             val split = summarize(listOf("Ana","Bia"), listOf(Expense("Ana",30),Expense("Ana",20),Expense("Bia",10)))
             check(split.map { it.paid } == listOf(50L,10L) && split.map { it.balance } == listOf(20L,-20L))
             check(summarize(listOf("Ana"),listOf(Expense("Ana",Long.MAX_VALUE))).single().balance == 0L)
-            println("9 cenários OK"); return
+            val ledgerScenarios = runLedgerTests()
+            println("9 cenários originais OK + $ledgerScenarios cenários do ledger"); return
+        }
+        if (args.contentEquals(arrayOf("--ledger-demo")) || args.contentEquals(arrayOf("--ledger-demo-tsv"))) {
+            val ledger = TravelLedger(listOf(Participant("Ana"), Participant("Bia"), Participant("Caio")))
+            ledger.addExpense(LedgerExpense("hotel", "Ana", parseCents("150.00"), listOf("Ana", "Bia", "Caio"), category = "hospedagem"))
+            ledger.addExpense(LedgerExpense("cafe", "Bia", parseCents("45.50"), listOf("Ana", "Bia"), category = "alimentação"))
+            if (args[0] == "--ledger-demo-tsv") print(ledger.toTsv())
+            else print(renderLedger(ledger.snapshot()))
+            return
+        }
+        if (args.size == 2 && args[0] == "--ledger-report") {
+            val ledger = TravelLedger.fromTsv(readLedgerFile(File(args[1])))
+            print(renderLedger(ledger.snapshot()))
+            return
         }
         val showSummary = args.firstOrNull() == "--resumo"
         val input = if (showSummary) args.drop(1) else args.toList()
-        require(input.size == 2) { "Uso: java -jar app.jar [--resumo] Ana,Bia,Caio despesas.tsv" }
-        val rows = File(input[1]).readLines().filter { it.isNotBlank() }
+        require(input.size == 2) { "Uso: java -jar app.jar [--resumo] Ana,Bia,Caio despesas.tsv | --ledger-demo | --ledger-demo-tsv | --ledger-report arquivo.tsv" }
+        val rows = readLedgerFile(File(input[1])).lineSequence().filter { it.isNotBlank() }.toList()
         require(rows.firstOrNull() == "pagador\tcentavos") { "Cabeçalho TSV inválido" }
         val expenses = rows.drop(1).map { val c=it.split('\t'); require(c.size==2); Expense(c[0],c[1].toLong()) }
         val people = input[0].split(',')
