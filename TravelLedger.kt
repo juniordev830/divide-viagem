@@ -21,7 +21,7 @@ data class LedgerExpense(
     val note: String = ""
 )
 
-data class ParticipantBalance(
+data class LedgerParticipantBalance(
     val name: String,
     val paidCents: Long,
     val owedCents: Long,
@@ -31,7 +31,7 @@ data class ParticipantBalance(
 data class LedgerSnapshot(
     val expenseCount: Int,
     val totalCents: Long,
-    val balances: List<ParticipantBalance>,
+    val balances: List<LedgerParticipantBalance>,
     val categoryTotals: Map<String, Long>,
     val transfers: List<Transfer>
 )
@@ -144,7 +144,7 @@ class TravelLedger(participants: List<Participant>) {
         }
     }
 
-    fun balances(): List<ParticipantBalance> {
+    fun balances(): List<LedgerParticipantBalance> {
         val paid = members.associate { it.name to 0L }.toMutableMap()
         val owed = members.associate { it.name to 0L }.toMutableMap()
         for (entry in entries.values) {
@@ -155,7 +155,7 @@ class TravelLedger(participants: List<Participant>) {
         }
         val result = members.map { member ->
             val name = member.name
-            ParticipantBalance(
+            LedgerParticipantBalance(
                 name,
                 paid.getValue(name),
                 owed.getValue(name),
