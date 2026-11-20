@@ -46,7 +46,7 @@ class TravelLedger(participants: List<Participant>) {
         require(members.isNotEmpty() && members.size <= 100) {
             "A viagem precisa de 1 a 100 participantes"
         }
-        require(members.all { it.name.isNotBlank() && it.name.length <= 80 && it.name.none(Char::isISOControl) && it.weight > 0 }) {
+        require(members.all { it.name.isNotBlank() && it.name.length <= 80 && it.name.none { ch -> Character.isISOControl(ch) } && it.weight > 0 }) {
             "Participante ou peso inválido"
         }
         require(members.map { it.name }.distinct().size == members.size) {
@@ -102,7 +102,7 @@ class TravelLedger(participants: List<Participant>) {
             "Peso para pessoa fora da despesa"
         }
         require(expense.weights.values.all { it > 0 }) { "Peso inválido" }
-        require(expense.category.isNotBlank() && expense.category.length <= 80 && expense.category.none(Char::isISOControl)) {
+        require(expense.category.isNotBlank() && expense.category.length <= 80 && expense.category.none { ch -> Character.isISOControl(ch) }) {
             "Categoria inválida"
         }
         require(expense.note.length <= 1000) { "Nota muito longa" }
