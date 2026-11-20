@@ -46,7 +46,7 @@ class TravelLedger(participants: List<Participant>) {
         require(members.isNotEmpty() && members.size <= 100) {
             "A viagem precisa de 1 a 100 participantes"
         }
-        require(members.all { it.name.isNotBlank() && it.name.length <= 80 && it.name.none { ch -> Character.isISOControl(ch) } && it.weight > 0 }) {
+        require(members.all { it.name.isNotBlank() && it.name.length <= 80 && it.weight > 0 }) {
             "Participante ou peso inválido"
         }
         require(members.map { it.name }.distinct().size == members.size) {
@@ -102,7 +102,7 @@ class TravelLedger(participants: List<Participant>) {
             "Peso para pessoa fora da despesa"
         }
         require(expense.weights.values.all { it > 0 }) { "Peso inválido" }
-        require(expense.category.isNotBlank() && expense.category.length <= 80 && expense.category.none { ch -> Character.isISOControl(ch) }) {
+        require(expense.category.isNotBlank() && expense.category.length <= 80) {
             "Categoria inválida"
         }
         require(expense.note.length <= 1000) { "Nota muito longa" }
@@ -341,23 +341,29 @@ fun parseCents(decimal: String): Long {
 fun formatCents(cents: Long): String =
     BigDecimal.valueOf(cents, 2).setScale(2).toPlainString()
 
+private fun displayLedgerText(value: String): String = buildString {
+    value.forEach { character ->
+        if (Character.isISOControl(character)) append("\\u%04X".format(character.code))
+        else append(character)
+    }
+}
 fun renderLedger(snapshot: LedgerSnapshot): String {
     val lines = mutableListOf(
         "Despesas: " + snapshot.expenseCount + " | Total: " + formatCents(snapshot.totalCents),
         "Participantes:"
     )
     for (item in snapshot.balances) {
-        lines += item.name + ": pago=" + formatCents(item.paidCents) +
+        lines += displayLedgerText(item.name) + ": pago=" + formatCents(item.paidCents) +
             " devido=" + formatCents(item.owedCents) +
             " saldo=" + formatCents(item.netCents)
     }
     lines += "Categorias:"
     for ((category, amount) in snapshot.categoryTotals) {
-        lines += category + ": " + formatCents(amount)
+        lines += displayLedgerText(category) + ": " + formatCents(amount)
     }
     lines += "Transferências sugeridas:"
     for (transfer in snapshot.transfers) {
-        lines += transfer.from + " -> " + transfer.to + ": " + formatCents(transfer.cents)
+        lines += displayLedgerText(transfer.from) + " -> " + displayLedgerText(transfer.to) + ": " + formatCents(transfer.cents)
     }
     return lines.joinToString("\n", postfix = "\n")
 }
