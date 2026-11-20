@@ -11,14 +11,14 @@ Divisão de despesas de viagem com cálculo do saldo por participante.
 Instale JDK 17+ e o compilador Kotlin 2.1.0 (ou compatível). Os comandos abaixo partem da raiz do repositório.
 
 ```sh
-kotlinc Main.kt -include-runtime -d app.jar
+kotlinc Main.kt TravelLedger.kt TravelLedgerTests.kt -include-runtime -d app.jar
 java -jar app.jar Ana,Bia,Caio examples/despesas.tsv
 ```
 
 ## Testes
 
 ```sh
-kotlinc Main.kt -include-runtime -d app.jar
+kotlinc Main.kt TravelLedger.kt TravelLedgerTests.kt -include-runtime -d app.jar
 java -jar app.jar --self-test
 ```
 
@@ -34,9 +34,9 @@ A proposta completa de evolução está em `ARQUITETURA.md`. As tecnologias prop
 
 ## Próximas entregas
 
-- [ ] Cadastrar participantes e despesas — ampliar o núcleo atual até o fluxo completo.
-- [ ] Dividir valores com arredondamento correto — ampliar o núcleo atual até o fluxo completo.
-- [ ] Calcular saldos e exportar resumo — ampliar o núcleo atual até o fluxo completo.
+- [x] Cadastrar participantes e despesas — ampliar o núcleo atual até o fluxo completo.
+- [x] Dividir valores com arredondamento correto — ampliar o núcleo atual até o fluxo completo.
+- [x] Calcular saldos e exportar resumo — ampliar o núcleo atual até o fluxo completo.
 
 Licença: ainda não definida.
 
