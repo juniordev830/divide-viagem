@@ -15,10 +15,31 @@ jobs:
           curl --fail --location --retry 2 -o kotlin.zip https://github.com/JetBrains/kotlin/releases/download/v2.1.0/kotlin-compiler-2.1.0.zip
           echo 'b6698d5728ad8f9edcdd01617d638073191d8a03139cc538a391b4e3759ad297  kotlin.zip' | sha256sum --check --strict
           unzip -q kotlin.zip -d /tmp/kotlin-tools
-          /tmp/kotlin-tools/kotlinc/bin/kotlinc Main.kt -include-runtime -d app.jar
+          /tmp/kotlin-tools/kotlinc/bin/kotlinc Main.kt TravelLedger.kt TravelLedgerTests.kt -include-runtime -d app.jar
       - name: Testar regras de domínio
         run: java -jar app.jar --self-test
 
+      - name: Testar livro de despesas ponderadas
+        run: |
+          java -jar app.jar --ledger-demo > "$RUNNER_TEMP/ledger.txt"
+          grep -q "Total" "$RUNNER_TEMP/ledger.txt"
+          java -jar app.jar --ledger-demo-tsv > "$RUNNER_TEMP/ledger.tsv"
+          java -jar app.jar --ledger-report "$RUNNER_TEMP/ledger.tsv" > "$RUNNER_TEMP/ledger-report.txt"
+          grep -q "Total" "$RUNNER_TEMP/ledger-report.txt"
+      - name: Rejeitar arquivos inválidos ou acima do limite
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import subprocess, tempfile
+          with tempfile.TemporaryDirectory() as tmp:
+              invalid = Path(tmp) / "invalid.tsv"
+              invalid.write_bytes(bytes([0xC3, 0x28]))
+              oversized = Path(tmp) / "oversized.tsv"
+              oversized.write_bytes(b"x" * 2_000_001)
+              for path in (invalid, oversized):
+                  result = subprocess.run(["java", "-jar", "app.jar", "--ledger-report", str(path)], capture_output=True, text=True)
+                  assert result.returncode == 2 and not result.stdout, (path.name, result.stderr)
+          PY
       - name: Testar CLI e compatibilidade
         run: |
           python3 - <<'PY'
