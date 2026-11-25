@@ -28,7 +28,7 @@ Os testes cobrem invariantes e entradas inválidas. A preparação local não di
 
 Código e exemplos: `Main.kt e examples/despesas.tsv`. Os dados de exemplo são fictícios. As funções de domínio são separadas da leitura de argumentos no mesmo arquivo para manter a primeira versão pequena e revisável.
 
-Divisão igual entre todos, sem moedas múltiplas ou pesos. As transferências são sugestões de cálculo e não movimentam dinheiro. Gradle e interface estão no roteiro.
+O fluxo legado divide igualmente entre todos; o livro de despesas ponderadas, descrito abaixo, também aceita pesos. Não há suporte a moedas múltiplas. As transferências são sugestões de cálculo e não movimentam dinheiro. Gradle e interface estão no roteiro.
 
 A proposta completa de evolução está em `ARQUITETURA.md`. As tecnologias propostas nessa arquitetura não devem ser interpretadas como dependências já implementadas.
 
@@ -96,7 +96,7 @@ com erro em vez de alterar o livro de despesas.
 
 A suíte de cenários executada por `--self-test` cobre arredondamento, pesos,
 beneficiários, erros de entrada, reconciliação, operações reversíveis,
-preview, exportação/importação TSV, Unicode, dinheiro e overflow.
+preview, exportação/importação TSV, Unicode, dinheiro e overflow. Inclui regressões para arquivos inválidos ou acima de 2 MB, pesos duplicados e caracteres de controle. Os relatórios textuais escapam controles ISO e caracteres Unicode de formatação (incluindo controles direcionais), sem modificar os dados armazenados.
 
 **Limites:** até 100 participantes e 10 mil despesas por instância; não
 há persistência automática, interface gráfica, autenticação ou integração
