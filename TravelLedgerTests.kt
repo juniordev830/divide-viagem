@@ -240,11 +240,9 @@ fun runLedgerTests(): Int {
         check(portions.values.fold(0L) { total, value -> Math.addExact(total, value) }
             == Long.MAX_VALUE)
     }
-    return passed
-
     scenario("relatório escapa controles sem alterar os dados") {
         val ledger = TravelLedger(listOf(Participant("Ana\tBia")))
-        ledger.addExpense(expense().copy(category = "refeições\nfora"))
+        ledger.addExpense(LedgerExpense("e1", "Ana\tBia", 100, listOf("Ana\tBia"), category = "refeições\nfora"))
         val report = renderLedger(ledger.snapshot())
         check("Ana\\u0009Bia" in report)
         check("refeições\\u000Afora" in report)
@@ -276,4 +274,14 @@ fun runLedgerTests(): Int {
             fails { readLedgerFile(oversized) }
         } finally { oversized.delete() }
     }
+    scenario("relatório escapa controles direcionais Unicode") {
+        val name = "Ana\u202EBia"
+        val ledger = TravelLedger(listOf(Participant(name)))
+        ledger.addExpense(LedgerExpense("e1", name, 100, listOf(name), category = "viagem\u2066"))
+        val report = renderLedger(ledger.snapshot())
+        check("Ana\\u202EBia" in report)
+        check("viagem\\u2066" in report)
+        check('\u202E' !in report && '\u2066' !in report)
+    }
+    return passed
 }

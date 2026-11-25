@@ -343,7 +343,9 @@ fun formatCents(cents: Long): String =
 
 private fun displayLedgerText(value: String): String = buildString {
     value.forEach { character ->
-        if (Character.isISOControl(character)) append("\\u%04X".format(character.code))
+        if (Character.isISOControl(character) || Character.getType(character) == Character.FORMAT.toInt()) {
+            append("\\u%04X".format(character.code))
+        }
         else append(character)
     }
 }
