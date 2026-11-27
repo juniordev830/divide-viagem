@@ -377,5 +377,5 @@ fun readLedgerFile(file: File): String {
     val decoder = StandardCharsets.UTF_8.newDecoder()
         .onMalformedInput(CodingErrorAction.REPORT)
         .onUnmappableCharacter(CodingErrorAction.REPORT)
-    return decoder.decode(ByteBuffer.wrap(bytes)).toString()
+    return decoder.decode(ByteBuffer.wrap(bytes)).toString().removePrefix("\uFEFF")
 }
